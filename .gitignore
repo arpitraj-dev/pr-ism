@@ -10,3 +10,5 @@ scripts/*
 
 myenv/
 
+k8s/secret.yaml
+
