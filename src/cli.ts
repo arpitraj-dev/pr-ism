@@ -8,9 +8,6 @@ export async function promptUserConfig(): Promise<UserConfig> {
     const configResult = loadConfig();
     if (configResult.success) {
         const existingConfig = configResult.value;
-        console.log(chalk.cyan('Using existing configuration:'));
-        console.log(`Use Case: ${existingConfig.useCase}`);
-        console.log(`API Endpoint: ${existingConfig.apiEndpoint}`);
         return existingConfig;
     } else {
         console.log(chalk.yellow(`No existing configuration found or error loading: ${configResult.error.message}`));
@@ -42,7 +39,7 @@ export async function promptUserConfig(): Promise<UserConfig> {
         message: 'Select a model to use:',
         choices: selectedUseCase.suggestedModels.map(model => ({
             name: model.name,
-            value: model.name  
+            value: model.name
         }))
     }]);
 

@@ -23,7 +23,6 @@ export default async (app: App) => {
         // Get user configuration through CLI
         config = await promptUserConfig();
         // selectedModel = config.model;
-        app.log.info(`Initialized with API url: ${config.apiEndpoint} for use case: ${config.useCase} and model : ${config.selectedModel}`);
     } catch (error) {
         app.log.info("Failed to get user configuration");
         // Using Node.js process API
@@ -39,19 +38,19 @@ export default async (app: App) => {
             const prData = await getAllPrDetails(context, app);
             app.log.info("Full PR data collected", { prData: JSON.stringify(prData) });
 
-            const llmOutput = await handlePrAnalysis(context, prData , config.apiEndpoint , config.selectedModel, app);
+            const llmOutput = await handlePrAnalysis(context, prData, config.apiEndpoint, config.selectedModel, app);
             // const stringllmOutput = await JSON.stringify(llmOutput);
             // app.log.info(JSON.stringify(stringllmOutput), "LLM analysis complete");
             await reviewPR(context as any, app, llmOutput);
             // await reviewPR(context, app);
-            
+
             // Export PR data to PDF
             try {
                 const { owner, repo } = context.repo();
                 const prNumber = context.payload.pull_request.number;
                 const pdfFilename = await savePrAsPdf(prData, owner, repo, prNumber);
                 app.log.info(`PR exported to PDF: ${pdfFilename}`);
-                
+
                 // Post comment with PDF info
                 await context.octokit.issues.createComment({
                     owner,
@@ -62,10 +61,10 @@ export default async (app: App) => {
             } catch (pdfError) {
                 app.log.error("Failed to export PR as PDF", pdfError);
             }
-            
+
             // Run all workflow triggers in parallel
             await Promise.all([
-                handleKeployWorkflowTrigger(context),  
+                handleKeployWorkflowTrigger(context),
                 handleSecurityWorkflowTrigger(context),
                 handleLintWorkflowTrigger(context)
             ]);
