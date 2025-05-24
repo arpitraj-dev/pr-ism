@@ -18,12 +18,16 @@ pipeline {
         }
 
         stage('Docker Build') {
+            agent {
+                docker {
+                    image 'docker:latest'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
             }
         }
-
-        
     }
 
     post {
