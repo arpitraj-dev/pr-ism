@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'node'
+    }
+
     environment {
         DOCKER_IMAGE = 'prism'
         DOCKER_TAG = "${BUILD_NUMBER}"
@@ -8,9 +12,6 @@ pipeline {
 
     stages {
         stage('Build & Test') {
-            agent {
-                docker { image 'node:18' }
-            }
             steps {
                 sh 'npm install'
                 sh 'npm run build'
