@@ -1,53 +1,39 @@
 pipeline {
     agent any
-    
+
     environment {
         DOCKER_IMAGE = 'prism'
-        DOCKER_TAG = "${env.BUILD_NUMBER}"
+        DOCKER_TAG = "${BUILD_NUMBER}"
     }
-    
+
     stages {
-        stage('Install Dependencies') {
+        stage('Build & Test') {
+            agent {
+                docker { image 'node:18' }
+            }
             steps {
                 sh 'npm install'
-            }
-        }
-        
-        stage('Build') {
-            steps {
                 sh 'npm run build'
-            }
-        }
-        
-        stage('Test') {
-            steps {
                 sh 'npm test'
             }
         }
-        
+
         stage('Docker Build') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                }
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
             }
         }
-        
-        stage('Deploy to K8s') {
+
+        stage('Deploy') {
             steps {
-                script {
-                    sh """
-                        kubectl apply -f k8s/
-                        kubectl set image deployment/prism prism=${DOCKER_IMAGE}:${DOCKER_TAG}
-                    """
-                }
+                sh 'kubectl apply -f k8s/'
             }
         }
     }
-    
+
     post {
         always {
             cleanWs()
         }
     }
-} 
+}
