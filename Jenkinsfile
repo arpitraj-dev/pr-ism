@@ -26,7 +26,12 @@ pipeline {
         stage('Deploy') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                    sh 'kubectl apply -f k8s/'
+                    sh '''
+                        set -ex
+                        kubectl version
+                        kubectl config current-context
+                        kubectl apply -f k8s/
+                    '''
                 }
             }
         }
