@@ -6,26 +6,38 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = 'prism'
-        DOCKER_TAG = "${BUILD_NUMBER}"
+        DOCKER_IMAGE = 'prism:latest'
     }
 
     stages {
-        stage('Install') {
+        stage('Install Dependencies') {
             steps {
+                checkout scm
                 sh 'npm install'
             }
         }
 
-        stage('Docker Build') {
-            agent {
-                docker {
-                    image 'docker:latest'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
+        stage('Build') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                sh 'npm run build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
+
+        stage('K8s Deploy') {
+            steps {
+                sh 'kubectl apply -f k8s/'
             }
         }
     }
