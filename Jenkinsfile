@@ -26,9 +26,9 @@ pipeline {
 
         stage('K8s Deploy') {
             steps {
-                sh 'kubectl apply -f k8s/ --validate=false'
-                sh 'kubectl get pods -n default'
-                sh 'kubectl get services -n default'
+                sh 'kubectl apply -f k8s/ --validate=false --insecure-skip-tls-verify'
+                sh 'kubectl get pods -n default --insecure-skip-tls-verify'
+                sh 'kubectl get services -n default --insecure-skip-tls-verify'
             }
         }
     }
