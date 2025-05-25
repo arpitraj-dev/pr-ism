@@ -15,4 +15,17 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
     && chmod +x kubectl \
     && mv kubectl /usr/local/bin/
 
+# Create script to fix kubectl config paths and server URL
+RUN echo '#!/bin/bash\n\
+if [ -f /root/.kube/config ]; then\n\
+    sed -i "s|/Users/[^/]*/\.minikube|/root/.minikube|g" /root/.kube/config\n\
+    sed -i "s|https://127\.0\.0\.1:|https://host.docker.internal:|g" /root/.kube/config\n\
+    sed -i "s|https://localhost:|https://host.docker.internal:|g" /root/.kube/config\n\
+fi\n\
+exec "$@"' > /usr/local/bin/fix-kube-config.sh && \
+    chmod +x /usr/local/bin/fix-kube-config.sh
+
+ENTRYPOINT ["/usr/local/bin/fix-kube-config.sh"]
+CMD ["/usr/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
+
 USER jenkins 
