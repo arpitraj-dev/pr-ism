@@ -26,11 +26,14 @@ pipeline {
 
         stage('K8s Deploy') {
             steps {
-                bat 'kubectl apply -f k8s/ --validate=false --insecure-skip-tls-verify'
-                bat 'kubectl get pods -n default --insecure-skip-tls-verify'
-                bat 'kubectl get services -n default --insecure-skip-tls-verify'
+                withEnv(['KUBECONFIG=C:\\Users\\Soumya Kumari\\.kube\\config']) {
+                    bat 'kubectl apply -f k8s/ --validate=false --insecure-skip-tls-verify'
+                    bat 'kubectl get pods -n default --insecure-skip-tls-verify'
+                    bat 'kubectl get services -n default --insecure-skip-tls-verify'
+                }
             }
         }
+
     }
 
     post {
